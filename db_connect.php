@@ -8,8 +8,18 @@ try{
 
 }
 
+/**
+ * return array of data 
+ */
+function getData($query)
+{
+    global $pdo;
+    $statement = $pdo->prepare($query);
+    $statement->execute();
+    return $statement->fetchAll();
+}
 
-
+//todo refactor export rgb
 
 
 

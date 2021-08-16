@@ -1,33 +1,30 @@
 <?php
 session_start();
+include('../db_connect.php');
+$type_u = 'admin'; #session variable
+$region = ''; #session variable
+$region = $type_u == 'admin' ? '' : $region;
+$hidden = $type_u == 'admin' ? '' : "hidden";
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="Soffi Zahir" />
     <title>Rapport général</title>
-
-    <link rel="canonical" href="index.html" />
+    <!-- <meta http-equiv="Cache-control" content="public"> -->
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <!-- jquery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-
     <!--datatables  -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css" />
-    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
-
     <!-- Flatpck -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/material_green.css" />
-
-
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -45,7 +42,7 @@ session_start();
     </style>
 
     <!-- Custom styles for this template -->
-    <link href="dashboard.css" rel="stylesheet" />
+    <link href="../dashboard.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -54,10 +51,10 @@ session_start();
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search" /> -->
+
         <div class="navbar-nav">
             <div class="nav-item text-nowrap">
-              
+
             </div>
         </div>
     </header>
@@ -99,7 +96,7 @@ session_start();
               mb-3
               border-bottom
             ">
-                    <h1 class="h2">Rapport général des bons de commandes</h1>
+                    <h1 class="h2">Rapport des Chiffres d'affaires des produits</h1>
                 </div>
                 <div class="card">
                     <div class="card-body">
@@ -111,7 +108,7 @@ session_start();
                                 <input type="text" class="form-control form-control-sm showdate" placeholder="Date 02" id="end_date" />
                             </div>
                             <div class="col">
-                                <select name="region_form" class="form-control-sm form-control" id="region" placeholder="Selectionez une Region">
+                                <select <?= $hidden ?> name="region_form" class="form-control-sm form-control" id="region" placeholder="Selectionez une Region">
                                     <option value="">Liste des Regions</option>
                                     <option value="Alger">Alger</option>
                                     <option value="Annaba">Annaba</option>
@@ -125,10 +122,46 @@ session_start();
                                 </select>
                             </div>
                             <div class="col">
+                                <input hidden>
+                                </input>
+                            </div>
+
+                        </div>
+                        <div class="row" style="margin-top: 0.2rem;">
+                            <div class="col">
+                                <select name="delegue" class="form-control-sm form-control" id="delegue">
+                                    <option value="">Nom délégué</option>
+                                    <?php
+                                    $query = "SELECT matricule_u,nom_u,prenom_u,statut_u FROM utilisateurs
+                                     WHERE   (type_u='delegue' and fonction_u='vp') 
+                                     AND statut_u = 'actif' AND region_u LIKE '%" . $region . "%'order by nom_u asc";
+                                    $result = getData($query);
+                                    foreach ($result as $row) {
+                                        echo "<option value=" . $row['matricule'] . ">" . $row['nom_u'] . ' ' . $row['prenom_u'] . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col">
+                                <select name="produit" class="form-control-sm form-control" id="produit">
+                                    <option value="">Produit</option>
+                                    <?php
+                                    $query = "SELECT DISTINCT nom_p FROM produits order by nom_p ";
+                                    $result = getData($query);
+                                    foreach ($result as $row) {
+                                        echo "<option value=" . $row['nom_p'] . ">" . $row['nom_p'] . ' ' . $row['prenom_u'] . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col">
                                 <button id="search" class="btn btn-sm btn-info" style="color: white">
                                     Rechercher
                                 </button>
-
+                            </div>
+                            <div class="col">
+                                <input hidden>
+                                </input>
                             </div>
 
                         </div>
@@ -137,6 +170,11 @@ session_start();
                         <small class="text-muted">
                             <button id="btn-export" class="btn btn-sm btn-success" style="color: white">
                                 Export to excel
+                            </button>
+                        </small>
+                        <small class="text-muted">
+                            <button id="btn-reset" class="btn btn-sm btn-danger" style="color: white">
+                                Réinitialiser la recherche
                             </button>
                         </small>
                     </div>
@@ -151,48 +189,14 @@ session_start();
               " style="width: 100%" id="rapport01">
                         <thead>
                             <tr>
-                                <th>N° BDC</th>
-                                <th>Statut</th>
-                                <th>Région</th>
-                                <th>Nom délégué PF</th>
-                                <th>Matricule délégué PF</th>
-                                <th>Nom délégué action</th>
-                                <th>Matricule délégué action</th>
-                                <th>Date</th>
-                                <th>Grossiste</th>
-                                <th>Matricule Grossiste</th>
-                                <th>Pharmacien</th>
-                                <th>Matricule Pharmacien</th>
-                                <th>Wilaya</th>
-                                <th>Total pvg remisé</th>
-                                <th>Type</th>
-                                <th>Remise du bon</th>
-                                <th>Remise facture</th>
-                                <th>Date de creation</th>
-                                <th>Date de validation</th>
-                                <th>Code_produit</th>
-                                <th>Nom_produit</th>
-                                <th>Qte_bon</th>
-                                <th>Ug_bon</th>
-                                <th>QteUg_bon</th>
-                                <th>PVG_bon</th>
-                                <th>PvgUg_bon</th>
-                                <th>Valeure_bon</th>
-                                <th>Remise_produit</th>
-                                <th>Poid_bon</th>
-                                <th>Qte_facture</th>
-                                <th>QteUg_facture</th>
-                                <th>Valeure_facture</th>
-                                <th>Remise_facture</th>
-                                <th>Poid_facture</th>
-                                <th>Liste_produit</th>
-                                <th>Observation</th>
-                                <th>Validation_produit</th>
-                                <th>palier Bon</th>
-                                <th>palier Facture</th>
-                                <th>Actions</th>
-                                <th>Commentaire Bon</th>
-                                <th>ACTION_LINK</th>
+                                <th>Produit</th>
+                                <th>QTE+UG commandé</th>
+                                <th>Valeur PVG remisé commandé</th>
+                                <th>Total Remise de commandes</th>
+                                <th>QTE+UG Facturé</th>
+                                <th>Valeur PVG remisé Facturé</th>
+                                <th>Total Remise de factures</th>
+                                <th>taux de Facturation </th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -202,41 +206,61 @@ session_start();
         </div>
     </div>
 
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- flatpickr -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/fr.js"></script>
+    <!-- Datatables -->
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
+
 </body>
 
 <script>
     $(document).ready(function() {
         //init flatpickr
         function initFlatpck() {
+            flatpickr.localize(flatpickr.l10ns.fr);
+            flatpickr(".showdate")
             $(".showdate").flatpickr({
                 defaultDate: "today",
                 maxDate: "today",
+
             });
         }
+
+
         function resetComponents() {
+            $('#report_table').DataTable().destroy();
+            fetch_data('yes', '', '', '');
             initFlatpck();
             $("#export").css({
                 "display": "none"
             });
             $("#region").val("");
+            $("#delegue").val("");
+            $("#produit").val("");
         }
         resetComponents();
 
-
-        function fetch_data(is_date_search, start_date = '', end_date = '', region = '') {
+        function fetch_data(is_date_search, start_date = '', end_date = '', region = '', produit = '', delegue = '') {
             var dataTable = $('#report_table').DataTable({
                 "processing": true,
                 "serverSide": true,
                 "order": [],
                 "ajax": {
-                    url: "fetch_data.php",
+                    url: "fetch_rcap.php",
                     type: "POST",
                     data: {
                         is_date_search: is_date_search,
                         start_date: start_date,
                         end_date: end_date,
-                        region: region
+                        region: region,
+                        produit: produit,
+                        delegue: delegue
                     }
                 }
             });
@@ -244,13 +268,15 @@ session_start();
 
 
         $("#search").click(function() {
-            var start_date = $("#start_date").val();
-            var end_date = $("#end_date").val();
-            var region = $("#region").val();
+            var start_date = $('#start_date').val();
+            var end_date = $('#end_date').val();
+            var region = $('#region').val();
+            var produit = $('#produit').val();
+            var delegue = $('#delegue').val();
             console.log(start_date + " " + end_date + region);
             if (start_date != "" && end_date != "") {
                 $('#report_table').DataTable().destroy();
-                fetch_data('yes', start_date, end_date, region);
+                fetch_data('yes', start_date, end_date, region, produit, delegue);
                 $("#export").css({
                     "display": "block"
                 });
@@ -265,20 +291,27 @@ session_start();
             var start_date = $('#start_date').val();
             var end_date = $('#end_date').val();
             var region = $('#region').val();
+            var produit = $('#produit').val();
+            var delegue = $('#delegue').val();
             console.log(start_date + " " + end_date + " " + region)
             if (start_date != '' && end_date != '') {
-                exportData(start_date, end_date, region);
+                exportData(start_date, end_date, region, produit, delegue);
                 resetComponents();
             } else {
                 alert("Both Date is Required");
             }
         });
+        $('#btn-reset').click(function() {
 
-        function exportData(start_date, end_date, region) {
+            resetComponents();
+
+        });
+
+        function exportData(start_date, end_date, region, produit = '', delegue = '') {
             if (start_date != '' && end_date != '') {
                 console.log(start_date + " " + end_date)
-                <?php $_SESSION['referrer'] = $_SERVER["PHP_SELF"]; ?>
-                window.location.href = 'export.php?start_date=' + start_date + '&end_date=' + end_date + '&region=' + region;
+                <?php $_SESSION['referrer'] = "rcap.php"; ?>
+                window.location.href = 'export_rcap.php?start_date=' + start_date + '&end_date=' + end_date + '&region=' + region + '&produit=' + produit + '&delegue=' + delegue;
             } else {
                 alert("Both Date is Required");
             }
