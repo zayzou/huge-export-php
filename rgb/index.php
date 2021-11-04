@@ -8,7 +8,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="description" content=""/>
     <meta name="author" content="Soffi Zahir"/>
-    <title>Rapport général</title>
+    <title>Rapport général des bons de commandes</title>
     <meta http-equiv="Cache-Control" content="public">
 
     <!-- Bootstrap core CSS -->
@@ -61,9 +61,9 @@ session_start();
             <div class="position-sticky pt-3">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">
+                        <a class="nav-link active" aria-current="page" href="../principal.php?p=acceuil">
                             <span data-feather="home"></span>
-                            Dashboard
+                            Retour
                         </a>
                     </li>
                 </ul>
@@ -155,22 +155,20 @@ session_start();
                         <th>N° BDC</th>
                         <th>Statut</th>
                         <th>Région</th>
-                        <th>Nom délégué PF</th>
-                        <th>Matricule délégué PF</th>
                         <th>Nom délégué action</th>
                         <th>Matricule délégué action</th>
                         <th>Date</th>
                         <th>Grossiste</th>
-                        <th>Matricule Grossiste</th>
-                        <th>Pharmacien</th>
-                        <th>Matricule Pharmacien</th>
+                        <th>Matricule pharmacie</th>
+                        <th>Nom Pharmacie</th>
                         <th>Wilaya</th>
                         <th>Total pvg remisé</th>
                         <th>Type</th>
                         <th>Remise du bon</th>
                         <th>Remise facture</th>
                         <th>Date de creation</th>
-                        <th>Date de validation</th>
+                        <th>Date de validation</th> <?php //--?>
+                        <th>Commentaire</th>
                         <th>Code_produit</th>
                         <th>Nom_produit</th>
                         <th>Qte_bon</th>
@@ -179,20 +177,18 @@ session_start();
                         <th>PVG_bon</th>
                         <th>PvgUg_bon</th>
                         <th>Valeure_bon</th>
-                        <th>Remise_produit</th>
                         <th>Poid_bon</th>
+                        <th>Remise_produit</th>
                         <th>Qte_facture</th>
                         <th>QteUg_facture</th>
                         <th>Valeure_facture</th>
                         <th>Remise_facture</th>
                         <th>Poid_facture</th>
                         <th>Liste_produit</th>
-                        <th>Observation</th>
-                        <th>Validation_produit</th>
                         <th>palier Bon</th>
                         <th>palier Facture</th>
-                        <th>Actions</th>
-                        <th>Commentaire Bon</th>
+                        <th>Observation</th>
+                        <th>Validation_produit</th>
 
                     </tr>
                     </thead>

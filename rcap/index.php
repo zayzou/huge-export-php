@@ -1,10 +1,10 @@
 <?php
 session_start();
 include('../db_connect.php');
-$type_u = 'admin'; #session variable
-$region = ''; #session variable
-$region = $type_u == 'admin' ? '' : $region;
-$hidden = $type_u == 'admin' ? '' : "hidden";
+$type_u = "user";
+$region = "Tizi";
+$region = $type_u == 'admin' || $type_u == 'validateur' || $type_u == 'verificateur' ? '' : $region;
+$hidden = $type_u == 'admin' || $type_u == 'validateur' || $type_u == 'verificateur' ? '' : "hidden";
 
 ?>
 <!DOCTYPE html>
@@ -15,8 +15,9 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="Soffi Zahir" />
-    <title>Rapport général</title>
-    <!-- <meta http-equiv="Cache-control" content="public"> -->
+    <meta http-equiv="Cache-Control" content="public">
+    <title>Rapport des Chiffres d'affaires des produits</title>
+
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -65,9 +66,9 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
                 <div class="position-sticky pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">
+                            <a class="nav-link active" aria-current="page" href="../principal.php?p=acceuil">
                                 <span data-feather="home"></span>
-                                Dashboard
+                                Retour
                             </a>
                         </li>
                     </ul>
@@ -132,12 +133,14 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
                                 <select name="delegue" class="form-control-sm form-control" id="delegue">
                                     <option value="">Nom délégué</option>
                                     <?php
-                                    $query = "SELECT matricule_u,nom_u,prenom_u,statut_u FROM utilisateurs
+                                    $query = "SELECT trim(matricule_u) matricule_u,nom_u,prenom_u,statut_u FROM utilisateurs
                                      WHERE   (type_u='delegue' and fonction_u='vp') 
-                                     AND statut_u = 'actif' AND region_u LIKE '%" . $region . "%'order by nom_u asc";
+                                     AND statut_u = 'actif' AND region_u =  '".$region ."' order by nom_u asc";
                                     $result = getData($query);
                                     foreach ($result as $row) {
-                                        echo "<option value=" . $row['matricule'] . ">" . $row['nom_u'] . ' ' . $row['prenom_u'] . "</option>";
+                                        ?>
+                                        <option value=" <?=$row['matricule_u']?>"> <?=$row['nom_u']." ".$row['prenom_u']?></option>;
+                                        <?php
                                     }
                                     ?>
                                 </select>
@@ -146,10 +149,12 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
                                 <select name="produit" class="form-control-sm form-control" id="produit">
                                     <option value="">Produit</option>
                                     <?php
-                                    $query = "SELECT DISTINCT nom_p FROM produits order by nom_p ";
+                                    $query = "SELECT trim(nom_produit_r) nom_produit_r FROM Reference_produit  ";
                                     $result = getData($query);
                                     foreach ($result as $row) {
-                                        echo "<option value=" . $row['nom_p'] . ">" . $row['nom_p'] . ' ' . $row['prenom_u'] . "</option>";
+                                        ?>
+                                        <option value="<?=$row['nom_produit_r']?>"> <?=$row['nom_produit_r']?></option>;
+                                    <?php
                                     }
                                     ?>
                                 </select>
@@ -251,6 +256,7 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "paging": false,
                 "ajax": {
                     url: "fetch_rcap.php",
                     type: "POST",
@@ -273,10 +279,11 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
             var region = $('#region').val();
             var produit = $('#produit').val();
             var delegue = $('#delegue').val();
-            console.log(start_date + " " + end_date + region);
+            console.log(start_date + " " + end_date +"  "+ region+"  "+delegue+" "+produit);
             if (start_date != "" && end_date != "") {
                 $('#report_table').DataTable().destroy();
                 fetch_data('yes', start_date, end_date, region, produit, delegue);
+                <?php $_SESSION['referrer'] = "rcap.php"; ?>
                 $("#export").css({
                     "display": "block"
                 });
@@ -310,7 +317,6 @@ $hidden = $type_u == 'admin' ? '' : "hidden";
         function exportData(start_date, end_date, region, produit = '', delegue = '') {
             if (start_date != '' && end_date != '') {
                 console.log(start_date + " " + end_date)
-                <?php $_SESSION['referrer'] = "rcap.php"; ?>
                 window.location.href = 'export_rcap.php?start_date=' + start_date + '&end_date=' + end_date + '&region=' + region + '&produit=' + produit + '&delegue=' + delegue;
             } else {
                 alert("Both Date is Required");

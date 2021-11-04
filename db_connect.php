@@ -9,7 +9,9 @@ try{
 }
 
 /**
- * return array of data 
+ * return array of data from database
+ * @params query
+ * @return array
  */
 function getData($query)
 {
@@ -19,7 +21,7 @@ function getData($query)
     return $statement->fetchAll();
 }
 
-//todo refactor export rgb
+
 
 
 

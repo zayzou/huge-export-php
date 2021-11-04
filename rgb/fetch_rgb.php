@@ -23,8 +23,25 @@ $query = "SELECT
         bon_commande.date_validation_bdc,
         bon_commande.comment_bdc,
         Reference_produit.code_produit_r,
-        ligne_commande.*,
-        bon_commande.num_bdc ACTION_LINK
+         produit_lc ,
+    qte_lc               ,
+    ug_lc                ,
+    qteug_lc             ,
+    pvg_lc               ,
+    pvgug_lc             ,
+    valeure_lc           ,
+    poid_lc              ,
+    remise_produit_lc    ,
+    qte_facture_lc       ,
+    qteug_facture_lc     ,
+    valeure_facture_lc   ,
+    remise_facture_lc    ,
+    poid_facture_lc      ,
+    liste_lc             ,
+    palier_bon           ,
+    palier_facture       ,
+    observation          ,
+    validation_produit   
         FROM
         ligne_commande
         INNER JOIN Reference_produit ON Reference_produit.nom_produit_r = ligne_commande.produit_lc

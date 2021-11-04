@@ -3,7 +3,7 @@ include '../security01.php';
 include "../export_data.php";
 include "../db_connect.php";
 if (!validReferrer("rgb")) {
-    header("Location:dashboard.php");
+    header("Location:index.php");
     die;
 }
 destroy();
@@ -33,23 +33,20 @@ if (isset($_GET["region"]) && !in_array($_GET["region"], $regions, true)) {
 
     $region = filterGet($_GET["region"]);
 }
-if ($error !=0){
-    header("Location:dashboard.php");
+if ($error != 0) {
+    header("Location:index.php");
     die;
 }
 $headArr = [
     "N° BDC",
     "Statut",
     "Région",
-    "Nom délégué PF",
-    "Matricule délégué PF",
     "Nom délégué action",
     "Matricule délégué action",
     "Date",
     "Grossiste",
-    "Matricule Grossiste",
-    "Pharmacien",
-    "Matricule Pharmacien",
+    "Matricule pharmacie",
+    "Nom Pharmacie",
     "Wilaya",
     "Total pvg remisé",
     "Type",
@@ -57,6 +54,7 @@ $headArr = [
     "Remise facture",
     "Date de creation",
     "Date de validation",
+    "Commentaire",
     "Code_produit",
     "Nom_produit",
     "Qte_bon",
@@ -65,21 +63,18 @@ $headArr = [
     "PVG_bon",
     "PvgUg_bon",
     "Valeure_bon",
-    "Remise_produit",
     "Poid_bon",
+    "Remise_produit",
     "Qte_facture",
     "QteUg_facture",
     "Valeure_facture",
     "Remise_facture",
     "Poid_facture",
     "Liste_produit",
-    "Observation",
-    "Validation_produit",
     "palier Bon",
     "palier Facture",
-    "Actions",
-    "Commentaire Bon",
-    "ACTION_LINK",
+    "Observation",
+    "Validation_produit",
 ];
 $query = "SELECT
         bon_commande.num_bdc,
@@ -104,8 +99,25 @@ $query = "SELECT
         bon_commande.date_validation_bdc,
         bon_commande.comment_bdc,
         Reference_produit.code_produit_r,
-        ligne_commande.*,
-        bon_commande.num_bdc ACTION_LINK
+         produit_lc ,
+    qte_lc               ,
+    ug_lc                ,
+    qteug_lc             ,
+    pvg_lc               ,
+    pvgug_lc             ,
+    valeure_lc           ,
+    poid_lc              ,
+    remise_produit_lc    ,
+    qte_facture_lc       ,
+    qteug_facture_lc     ,
+    valeure_facture_lc   ,
+    remise_facture_lc    ,
+    poid_facture_lc      ,
+    liste_lc             ,
+    palier_bon           ,
+    palier_facture       ,
+    observation          ,
+    validation_produit   
         FROM
         ligne_commande
         INNER JOIN Reference_produit ON Reference_produit.nom_produit_r = ligne_commande.produit_lc

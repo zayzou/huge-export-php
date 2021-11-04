@@ -3,7 +3,7 @@ include '../security01.php';
 include "../export_data.php";
 include "../db_connect.php";
 if (!validReferrer("rcap.php")) {
-    header("Location:dashboard.php");
+    header("Location:index.php");
     die;
 }
 destroy();
@@ -41,8 +41,8 @@ if (isset($_GET["delegue"])) {
     $delegue = filterGet($_GET["delegue"]);
 }
 
-if ($error!=0){
-    header("Location:dashboard.php");
+if ($error != 0) {
+    header("Location:index.php");
     die;
 }
 $headArr = [
@@ -55,28 +55,53 @@ $headArr = [
     "Total Remise de factures",
     "taux de Facturation ",
 ];
-$query = "SELECT
-ligne_commande.produit_lc,
-SUM(qteug_lc) ,
-ROUND(SUM(valeure_lc),2) ,
-ROUND(SUM(remise_produit_lc),2) ,
-IF(valeure_lc = 1, ROUND(SUM(qteug_facture_lc),2),0) ,
-IF(valeure_lc = 1, ROUND(SUM(valeure_facture_lc),2),0) ,
-IF(valeure_lc = 1, ROUND(SUM(remise_facture_lc),2),0) ,
-IF(valeure_lc = 1, ROUND(0.01*(SUM(valeure_facture_lc)/SUM(valeure_lc)),2),0)
-FROM
-ligne_commande
-INNER JOIN bon_commande ON ligne_commande.numbdc_lc = bon_commande.num_bdc
-WHERE bon_commande.statut_bdc!='Annule' AND 
-bon_commande.date_bdc BETWEEN '" . $start_date . "' AND '" . $end_date . "'
-AND bon_commande.region_bdc LIKE '%" . $region . "%'
-AND bon_commande.nom_delegue_action  LIKE '%" . $delegue . "%'
-AND ligne_commande.produit_lc  LIKE '%" . $produit . "%'
-GROUP BY
-produit_lc";
 
-// print_r($query);
-$data = getData($query);
-// var_dump($data);
+$query = "SELECT * FROM Reference_produit where nom_produit_r LIKE '%" . $produit. "%'";
+$products = getData($query);
+$sub_bons = array();
+$sub_facture = array();
+foreach ($products as $product) {
+    $query = "SELECT
+            ligne_commande.produit_lc,
+            SUM(qteug_lc) as qteug_lc,
+            ROUND(SUM(valeure_lc) ,2) as valeur_lc,
+            ROUND(SUM(remise_produit_lc),2) as  remise_produit_lc
+            FROM
+                ligne_commande
+            INNER JOIN bon_commande ON ligne_commande.numbdc_lc = bon_commande.num_bdc
+            WHERE
+            bon_commande.statut_bdc != 'Annule' AND
+            bon_commande.date_bdc BETWEEN '" . $start_date . "' AND '" . $end_date . "' AND
+            ligne_commande.produit_lc LIKE  '%" . $product['nom_produit_r'] . "%'  AND
+            bon_commande.region_bdc LIKE '%" . $region . "%' AND 
+            bon_commande.nom_delegue_action LIKE '%" . trim($delegue) . "%'  ";
+
+    $sub_bons = getData($query)[0];
+    $valeur_lc = $sub_bons['valeur_lc'];
+    $query = "SELECT
+
+            round(SUM(qteug_facture_lc),2) qteug_facture_lc,
+            round(SUM(valeure_facture_lc),2) as valeur_facture_lc,
+            round(SUM(remise_facture_lc),2)  remise_facture_lc
+            FROM
+                ligne_commande
+            INNER JOIN bon_commande ON ligne_commande.numbdc_lc = bon_commande.num_bdc
+            WHERE
+            bon_commande.statut_bdc != 'Annule' AND ligne_commande.validation_produit = 1 AND
+            bon_commande.date_bdc BETWEEN '" . $start_date . "' AND '" . $end_date . "' AND
+            ligne_commande.produit_lc LIKE  '%" . $product['nom_produit_r'] . "%'  AND
+            bon_commande.region_bdc LIKE '%" . $region . "%' AND 
+            bon_commande.nom_delegue_action LIKE '%" . trim($delegue) . "%' ";
+    $sub_facture = getData($query)[0];
+    $valeur_facture_lc = $sub_facture['valeur_facture_lc'];
+    $taux = $valeur_lc != 0 ? round((($valeur_facture_lc * 100) / $valeur_lc), 2) : 0;
+    $sub_facture['taux'] = $taux;
+    if ($sub_bons['produit_lc'] != null) {
+        $data [] = array_merge($sub_bons, $sub_facture);
+    }
+
+}
+
+//var_dump($data);
 $name = $start_date . "-" . $end_date . "-" . $region;
 exportToExcel($name, $headArr, $data);
