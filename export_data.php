@@ -15,7 +15,7 @@ function exportToExcel($fileName = '', $headArr = [], $data = [])
     foreach ($data as $row) {
         $sub_data = array();
         foreach ($row as  $value) {
-            $sub_data[] = $value;
+            $sub_data[] = str_replace(".",",",$value);
         }
         if ($index == 1000) { // each write memory data clear 1000
             $index = 0;

@@ -10,7 +10,7 @@ function destroy()
 }
 function filterGet($param)
 {
-    return htmlentities($param, ENT_QUOTES, 'UTF-8');
+    return trim(htmlentities($param, ENT_QUOTES, 'UTF-8'));
 }
 
 function validateDate($date, $format = 'Y-m-d'){

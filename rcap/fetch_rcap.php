@@ -1,7 +1,6 @@
 <?php
 include('../db_connect.php');
 $data = array();
-
 if ($_POST['start_date'] != '' || $_POST['end_date'] != '') {
     $query = "SELECT * FROM Reference_produit where nom_produit_r LIKE '%" . $_POST["produit"] . "%'";
     $products = getData($query);
@@ -22,7 +21,8 @@ if ($_POST['start_date'] != '' || $_POST['end_date'] != '') {
             ligne_commande.produit_lc LIKE  '%" . $product['nom_produit_r'] . "%'  AND
             bon_commande.region_bdc LIKE '%" . $_POST["region"] . "%' AND 
             bon_commande.nom_delegue_action LIKE '%" . trim($_POST["delegue"]) . "%'  ";
-
+        print_r($query);
+        break;
         $sub_bons = getData($query)[0];
         $valeur_lc = $sub_bons['valeur_lc'];
         $query = "SELECT
@@ -38,6 +38,7 @@ if ($_POST['start_date'] != '' || $_POST['end_date'] != '') {
             ligne_commande.produit_lc LIKE  '%" . $product['nom_produit_r'] . "%'  AND
             bon_commande.region_bdc LIKE '%" . $_POST["region"] . "%' AND 
             bon_commande.nom_delegue_action LIKE '%" . trim($_POST["delegue"] ). "%' ";
+
         $sub_facture = getData($query)[0];
         $valeur_facture_lc = $sub_facture['valeur_facture_lc'];
         $taux = $valeur_lc != 0 ? round((($valeur_facture_lc * 100) / $valeur_lc),2) : 0;

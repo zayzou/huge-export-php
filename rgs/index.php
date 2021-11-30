@@ -1,18 +1,23 @@
 <?php
-
 session_start();
-if(empty($_SESSION['username']))
-{header("location: ../index.php");}
+include('../db_connect.php');
+$type_u = "admin";
+
+
+$hidden = $type_u == 'admin' || $type_u == 'validateur' || $type_u == 'verificateur' ? '' : "hidden";
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="description" content=""/>
     <meta name="author" content="Soffi Zahir"/>
-    <title>Rapport général des bons de commandes</title>
     <meta http-equiv="Cache-Control" content="public">
+    <title>Rapport des Chiffres d'affaires des produits</title>
+
 
     <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -50,7 +55,7 @@ if(empty($_SESSION['username']))
             aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <!-- <input class="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search" /> -->
+
     <div class="navbar-nav">
         <div class="nav-item text-nowrap">
 
@@ -95,39 +100,29 @@ if(empty($_SESSION['username']))
               mb-3
               border-bottom
             ">
-                <h1 class="h2">Rapport général des bons de commandes</h1>
+                <h1 class="h2">Rapport des Chiffres d'affaires des produits</h1>
             </div>
             <div class="card">
                 <div class="card-body">
                     <div class="row">
+
+
                         <div class="col">
-                            <input type="text" class="form-control form-control-sm showdate" placeholder="Date 01"
-                                   id="start_date"/>
+                            <input hidden>
+                            </input>
                         </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-sm showdate" placeholder="Date 02"
-                                   id="end_date"/>
-                        </div>
-                        <div class="col">
-                            <select name="region_form" class="form-control-sm form-control" id="region"
-                                    placeholder="Selectionez une Region">
-                                <option value="">Liste des Regions</option>
-                                <option value="Alger">Alger</option>
-                                <option value="Annaba">Annaba</option>
-                                <option value="Chlef">Chlef</option>
-                                <option value="Constantine">Constantine</option>
-                                <option value="Grand Sud">Grand Sud</option>
-                                <option value="Oran">Oran</option>
-                                <option value="Setif">Setif</option>
-                                <option value="Tizi Ouzou">Tizi Ouzou</option>
-                                <option value="Tlemcen">Tlemcen</option>
-                            </select>
-                        </div>
+
+                    </div>
+                    <div class="row" style="margin-top: 0.2rem;">
+
                         <div class="col">
                             <button id="search" class="btn btn-sm btn-info" style="color: white">
                                 Rechercher
                             </button>
-
+                        </div>
+                        <div class="col">
+                            <input hidden>
+                            </input>
                         </div>
 
                     </div>
@@ -155,49 +150,20 @@ if(empty($_SESSION['username']))
               " style="width: 100%" id="rapport01">
                     <thead>
                     <tr>
-                        <th>N° BDC</th>
-                        <th>Statut</th>
-                        <th>Région</th>
-                        <th>Matricule délégué PF</th>
-                        <th>Nom délégué action</th>
-                        <th>Matricule délégué action</th>
-                        <th>Date</th>
                         <th>Grossiste</th>
-                        <th>Matricule Grossiste</th>
-                        <th>Nom Pharmacie</th>
-                        <th>Matricule pharmacie</th>
-						<th>Wilaya</th>
-                        <th>Total pvg remisé</th>
-                        <th>Type</th>
-                        <th>Remise du bon</th>
-                        <th>Remise facture</th>
-                        <th>Date de creation</th>
-                        <th>Date de validation</th> <?php //--?>
-                        <th>Code_produit</th>
-                        <th>Nom_produit</th>
-                        <th>Qte_bon</th>
-                        <th>Ug_bon</th>
-                        <th>QteUg_bon</th>
-                        <th>PVG_bon</th>
-                        <th>PvgUg_bon</th>
-                        <th>Valeure_bon</th>
-						<th>Remise_produit</th>
-                        <th>Poid_bon</th>
-                        <th>Qte_facture</th>
-                        <th>QteUg_facture</th>
-                        <th>Valeure_facture</th>
-                        <th>Remise_facture</th>
-                        <th>Poid_facture</th>
-                        <th>Liste_produit</th>
-						<th>Observation</th>
-						<th>Validation_produit</th>
-                        <th>palier Bon</th>
-                        <th>palier Facture</th>
-						<th>Commentaire</th>
-						<th>validateur</th>
-                        
-                        
-
+                        <th>Produit</th>
+                        <th>janvier</th>
+                        <th>février</th>
+                        <th>mars</th>
+                        <th>avril</th>
+                        <th>mai</th>
+                        <th>juin</th>
+                        <th>juillet</th>
+                        <th>août</th>
+                        <th>septembre</th>
+                        <th>octobre</th>
+                        <th>novembre</th>
+                        <th>décembre</th>
                     </tr>
                     </thead>
                     <tbody></tbody>
@@ -236,6 +202,7 @@ if(empty($_SESSION['username']))
             });
         }
 
+
         function resetComponents() {
             $('#report_table').DataTable().destroy();
             fetch_data('yes', '', '', '');
@@ -243,25 +210,22 @@ if(empty($_SESSION['username']))
             $("#export").css({
                 "display": "none"
             });
-            $("#region").val("");
+
         }
 
         resetComponents();
 
-
-        function fetch_data(is_date_search, start_date = '', end_date = '', region = '') {
+        function fetch_data(is_date_search, start_date = '', end_date = '', region = '', produit = '', delegue = '') {
             var dataTable = $('#report_table').DataTable({
                 "processing": true,
                 "serverSide": true,
                 "order": [],
+                "paging": false,
                 "ajax": {
-                    url: "fetch_rgb.php",
+                    url: "fetch_rgs.php",
                     type: "POST",
                     data: {
                         is_date_search: is_date_search,
-                        start_date: start_date,
-                        end_date: end_date,
-                        region: region
                     }
                 }
             });
@@ -269,13 +233,11 @@ if(empty($_SESSION['username']))
 
 
         $("#search").click(function () {
-            var start_date = $("#start_date").val();
-            var end_date = $("#end_date").val();
-            var region = $("#region").val();
-            console.log(start_date + " " + end_date + region);
-            if (start_date != "" && end_date != "") {
+            var start_date = $('#start_date').val();
+            if (start_date != ""  ) {
                 $('#report_table').DataTable().destroy();
-                fetch_data('yes', start_date, end_date, region);
+                fetch_data('yes', start_date);
+                <?php $_SESSION['referrer'] = "rgs.php"; ?>
                 $("#export").css({
                     "display": "block"
                 });
@@ -285,14 +247,11 @@ if(empty($_SESSION['username']))
             }
         });
 
-
         $('#btn-export').click(function () {
             var start_date = $('#start_date').val();
-            var end_date = $('#end_date').val();
-            var region = $('#region').val();
-            console.log(start_date + " " + end_date + " " + region)
-            if (start_date != '' && end_date != '') {
-                exportData(start_date, end_date, region);
+            console.log(start_date)
+            if (start_date != "") {
+                exportData(start_date);
                 resetComponents();
             } else {
                 alert("Both Date is Required");
@@ -302,11 +261,10 @@ if(empty($_SESSION['username']))
             resetComponents();
         });
 
-        function exportData(start_date, end_date, region) {
-            if (start_date != '' && end_date != '') {
+        function exportData(start_date) {
+            if (start_date ) {
                 console.log(start_date + " " + end_date)
-                <?php $_SESSION['referrer'] = "rgb"; ?>
-                window.location.href = 'export_rgb.php?start_date=' + start_date + '&end_date=' + end_date + '&region=' + region;
+                window.location.href = 'export_rcap.php?start_date=' + start_date + '&end_date=' + end_date + '&region=' + region + '&produit=' + produit + '&delegue=' + delegue;
             } else {
                 alert("Both Date is Required");
             }

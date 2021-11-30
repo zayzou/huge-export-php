@@ -1,27 +1,29 @@
 <?php
+
 include '../fetch_data.php';
 $query = "SELECT
         bon_commande.num_bdc,
         bon_commande.statut_bdc,
         bon_commande.region_bdc,
+		bon_commande.nomu_bdc,
         CONCAT_WS(
             ' ',
             utilisateurs.nom_u,
             utilisateurs.prenom_u
         ) delegue_action,
-        bon_commande.nomu_bdc delegue_pf,
+        bon_commande.nom_delegue_action delegue_pf,
         bon_commande.date_bdc,
         grossiste.nom_grossiste,
-        bon_commande.nomf_bdc mat_pharmacie,
+		grossiste.code_grossiste,
         clients.nom_c pharmacien,
-        clients.wilaya_c,
+        bon_commande.nomf_bdc mat_pharmacie,
+		clients.wilaya_c,
         bon_commande.total_bdc total_pvg_remise,
         bon_commande.type_bdc,
         bon_commande.remise_bdc,
         bon_commande.remise_fac,
         bon_commande.date_saisie_bdc,
         bon_commande.date_validation_bdc,
-        bon_commande.comment_bdc,
         Reference_produit.code_produit_r,
          produit_lc ,
     qte_lc               ,
@@ -30,18 +32,21 @@ $query = "SELECT
     pvg_lc               ,
     pvgug_lc             ,
     valeure_lc           ,
+	remise_produit_lc    ,
     poid_lc              ,
-    remise_produit_lc    ,
     qte_facture_lc       ,
     qteug_facture_lc     ,
     valeure_facture_lc   ,
     remise_facture_lc    ,
     poid_facture_lc      ,
     liste_lc             ,
+	observation          ,
+    validation_produit   ,
     palier_bon           ,
     palier_facture       ,
-    observation          ,
-    validation_produit   
+	bon_commande.comment_bdc,
+	bon_commande.matricule_modificateur_bdc
+    
         FROM
         ligne_commande
         INNER JOIN Reference_produit ON Reference_produit.nom_produit_r = ligne_commande.produit_lc

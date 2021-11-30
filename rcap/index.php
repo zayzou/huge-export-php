@@ -1,8 +1,8 @@
 <?php
 session_start();
 include('../db_connect.php');
-$type_u = "user";
-$region = "Tizi";
+$type_u = "admin";
+$region = "";
 $region = $type_u == 'admin' || $type_u == 'validateur' || $type_u == 'verificateur' ? '' : $region;
 $hidden = $type_u == 'admin' || $type_u == 'validateur' || $type_u == 'verificateur' ? '' : "hidden";
 
@@ -135,7 +135,7 @@ $hidden = $type_u == 'admin' || $type_u == 'validateur' || $type_u == 'verificat
                                     <?php
                                     $query = "SELECT trim(matricule_u) matricule_u,nom_u,prenom_u,statut_u FROM utilisateurs
                                      WHERE   (type_u='delegue' and fonction_u='vp') 
-                                     AND statut_u = 'actif' AND region_u =  '".$region ."' order by nom_u asc";
+                                     AND statut_u = 'actif' AND region_u  LIKE '%" . $region . "%'order by nom_u asc";
                                     $result = getData($query);
                                     foreach ($result as $row) {
                                         ?>
